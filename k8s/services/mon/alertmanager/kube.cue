@@ -1,68 +1,51 @@
 package kube
 
 service: alertmanager: {
-	apiVersion: "v1"
-	kind:       "Service"
 	metadata: {
 		annotations: {
 			"prometheus.io/scrape": "true"
 			"prometheus.io/path":   "/metrics"
 		}
 		labels: name: "alertmanager"
-		name: "alertmanager"
 	}
 	spec: {
-		selector: app: "alertmanager"
 		// type: ClusterIP
 		ports: [{
-			name:       "main"
-			protocol:   "TCP"
-			port:       9093
-			targetPort: 9093
+			name: "main"
 		}]
 	}
 }
-deployment: alertmanager: {
-	apiVersion: "apps/v1"
-	kind:       "Deployment"
-	metadata: name: "alertmanager"
-	spec: {
-		replicas: 1
-		selector: matchLabels: app: "alertmanager"
-		template: {
-			metadata: {
-				name: "alertmanager"
-				labels: app: "alertmanager"
-			}
-			spec: {
-				containers: [{
-					name:  "alertmanager"
-					image: "prom/alertmanager:v0.15.2"
-					args: [
-						"--config.file=/etc/alertmanager/alerts.yaml",
-						"--storage.path=/alertmanager",
-						"--web.external-url=https://alertmanager.example.com",
-					]
-					ports: [{
-						name:          "alertmanager"
-						containerPort: 9093
-					}]
-					volumeMounts: [{
-						name:      "config-volume"
-						mountPath: "/etc/alertmanager"
-					}, {
-						name:      "alertmanager"
-						mountPath: "/alertmanager"
-					}]
+deployment: alertmanager: spec: {
+	selector: matchLabels: app: "alertmanager"
+	template: {
+		metadata: name: "alertmanager"
+		spec: {
+			containers: [{
+				image: "prom/alertmanager:v0.15.2"
+				args: [
+					"--config.file=/etc/alertmanager/alerts.yaml",
+					"--storage.path=/alertmanager",
+					"--web.external-url=https://alertmanager.example.com",
+				]
+				ports: [{
+					name:          "alertmanager"
+					containerPort: 9093
 				}]
-				volumes: [{
-					name: "config-volume"
-					configMap: name: "alertmanager"
+				volumeMounts: [{
+					name:      "config-volume"
+					mountPath: "/etc/alertmanager"
 				}, {
-					name: "alertmanager"
-					emptyDir: {}
+					name:      "alertmanager"
+					mountPath: "/alertmanager"
 				}]
-			}
+			}]
+			volumes: [{
+				name: "config-volume"
+				configMap: name: "alertmanager"
+			}, {
+				name: "alertmanager"
+				emptyDir: {}
+			}]
 		}
 	}
 }

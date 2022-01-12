@@ -1,45 +1,32 @@
 package kube
 
-deployment: tasks: {
-	apiVersion: "apps/v1"
-	kind:       "Deployment"
-	metadata: name: "tasks"
-	spec: {
-		replicas: 1
-		// podTemplate defines the 'cookie cutter' used for creating
-		// new pods when necessary
-		template: {
-			metadata: {
-				labels: {
-					// Important: these labels need to match the selector above
-					// The api server enforces this constraint.
-					app:       "tasks"
-					component: "infra"
-				}
-				annotations: {
-					"prometheus.io.scrape": "true"
-					"prometheus.io.port":   "7080"
-				}
-			}
-			spec: {
-				volumes: [{
-					name: "secret-volume"
-					secret: secretName: "star-example-com-secrets"
+deployment: tasks: spec: {
+	// podTemplate defines the 'cookie cutter' used for creating
+	// new pods when necessary
+	template: {
+		metadata: annotations: {
+			"prometheus.io.scrape": "true"
+			"prometheus.io.port":   "7080"
+		}
+		spec: {
+			volumes: [{
+				name: "secret-volume"
+				secret: secretName: "star-example-com-secrets"
+			}]
+			containers: [{
+				image: "gcr.io/myproj/tasks:v0.2.6"
+				ports: [{
+					containerPort: 7080
+				}, {
+					containerPort: 7443
 				}]
-				containers: [{
-					name:  "tasks"
-					image: "gcr.io/myproj/tasks:v0.2.6"
-					ports: [{
-						containerPort: 7080
-					}, {
-						containerPort: 7443
-					}]
-					volumeMounts: [{
-						mountPath: "/etc/ssl"
-						name:      "secret-volume"
-					}]
+				volumeMounts: [{
+					mountPath: "/etc/ssl"
+					name:      "secret-volume"
 				}]
-			}
+			}]
 		}
 	}
 }
+
+deployment: tasks: spec: template: spec: containers: [{ports: [{_export: false}, _]}]

@@ -1,54 +1,10 @@
 package kube
 
-service: host: {
-	apiVersion: "v1"
-	kind:       "Service"
-	metadata: {
-		name: "host"
-		labels: {
-			app:       "host"
-			component: "frontend"
-			domain:    "prod"
-		}
-	}
-	spec: {
-		ports: [{
-			port:       7080
-			targetPort: 7080
-			protocol:   "TCP"
-			name:       "client"
-		}]
-		selector: {
-			app:       "host"
-			component: "frontend"
-			domain:    "prod"
-		}
-	}
-}
-deployment: host: {
-	apiVersion: "apps/v1"
-	kind:       "Deployment"
-	metadata: name: "host"
-	spec: {
-		replicas: 2
-		template: {
-			metadata: {
-				labels: {
-					app:       "host"
-					component: "frontend"
-					domain:    "prod"
-				}
-				annotations: "prometheus.io.scrape": "true"
-			}
-			spec: containers: [{
-				name:  "host"
-				image: "gcr.io/myproj/host:v0.1.10"
-				ports: [{
-					containerPort: 7080
-				}]
-				args: [
-				]
-			}]
-		}
-	}
+deployment: host: spec: {
+	replicas: 2
+	template: spec: containers: [{
+		image: "gcr.io/myproj/host:v0.1.10"
+		args: [
+		]
+	}]
 }

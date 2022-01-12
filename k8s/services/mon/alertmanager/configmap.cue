@@ -5,7 +5,6 @@ import yaml656e63 "encoding/yaml"
 configMap: alertmanager: {
 	apiVersion: "v1"
 	kind:       "ConfigMap"
-	metadata: name: "alertmanager"
 	data: {
 		"alerts.yaml": yaml656e63.Marshal(_cue_alerts_yaml)
 		let _cue_alerts_yaml = {

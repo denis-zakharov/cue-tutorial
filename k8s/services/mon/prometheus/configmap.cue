@@ -5,7 +5,6 @@ import yaml656e63 "encoding/yaml"
 configMap: prometheus: {
 	apiVersion: "v1"
 	kind:       "ConfigMap"
-	metadata: name: "prometheus"
 	data: {
 		"alert.rules": yaml656e63.Marshal(_cue_alert_rules)
 		let _cue_alert_rules = {
@@ -34,7 +33,7 @@ configMap: prometheus: {
 					alert: "EtcdNoMaster"
 					expr:  "sum(etcd_server_has_leader{app=\"etcd\"}) == 0"
 					for:   "1s"
-					labels: severity: "page"
+					labels: severity:     "page"
 					annotations: summary: "No ETCD master elected."
 				}, {
 					alert: "PodRestart"

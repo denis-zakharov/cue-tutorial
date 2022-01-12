@@ -8,7 +8,6 @@ configMap: authproxy: {
 
 	apiVersion: "v1"
 	kind:       "ConfigMap"
-	metadata: name: "authproxy"
 	data: "authproxy.cfg": """
 		# Google Auth Proxy Config File
 		## https://github.com/bitly/google_auth_proxy

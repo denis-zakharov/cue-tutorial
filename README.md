@@ -64,3 +64,43 @@ cd services/
 # -R detect structured data recursively (e.g. yaml in yaml for prometheus rules)
 cue import ./... -p kube -l 'strings.ToCamel(kind)' -l metadata.name -f -R
 ```
+
+## Quick 'n Dirty Conversion
+Evaluate definitions only with *concrete* values to compare improvements.
+```sh
+cue eval -c ./... > ../snapshot
+```
+
+Templates are applied to (are unified with) all entries in the struct in which they are defined,
+so we need to either strip fields specific to the breaddispatcher definition, generalize them,
+or remove them.
+
+```sh
+cp frontend/breaddispatcher/kube.cue kubetmpl.cue
+```
+
+- [ID=_]
+- defaults
+- types
+
+As there are very few objects that do not specify the component label, we will modify the configurations
+to include them everywhere. We do this by setting a newly defined top-level field in each directory
+to the directory name and modify our master template file to use it.
+
+```sh
+# add a file with the component label to each directory
+ls -d */ | sed 's/.$//' | xargs -I DIR sh -c 'cd DIR; echo "package kube
+
+#Component: \"DIR\"
+" > kube.cue; cd ..'
+
+# format the files
+cue fmt kubetmpl.cue */kube.cue
+
+# cleanup struct fields that can be inferred from constraints
+cue trim ./...
+cue trim -s ./... # fold fields (simplify)
+
+# using commands from *_tool.cue files
+cue cmd dump ./...
+```

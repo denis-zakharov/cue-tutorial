@@ -3,7 +3,6 @@ package kube
 configMap: nginx: {
 	apiVersion: "v1"
 	kind:       "ConfigMap"
-	metadata: name: "nginx"
 	data: "nginx.conf": """
 		events {
 		    worker_connections 768;

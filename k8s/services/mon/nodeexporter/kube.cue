@@ -1,75 +1,57 @@
 package kube
 
 service: "node-exporter": {
-	apiVersion: "v1"
-	kind:       "Service"
-	metadata: {
-		labels: app: "node-exporter"
-		annotations: "prometheus.io/scrape": "true"
-		name: "node-exporter"
-	}
+	metadata: annotations: "prometheus.io/scrape": "true"
 	spec: {
 		type:      "ClusterIP"
 		clusterIP: "None"
 		ports: [{
-			name:     "metrics"
-			port:     9100
-			protocol: "TCP"
+			name: "metrics"
 		}]
-		selector: app: "node-exporter"
 	}
 }
-daemonSet: "node-exporter": {
-	apiVersion: "apps/v1"
-	kind:       "DaemonSet"
+daemonSet: "node-exporter": spec: template: {
 	metadata: name: "node-exporter"
-	spec: template: {
-		metadata: {
-			labels: app: "node-exporter"
-			name: "node-exporter"
-		}
-		spec: {
-			hostNetwork: true
-			hostPID:     true
-			containers: [{
-				image: "quay.io/prometheus/node-exporter:v0.16.0"
-				args: [
-					"--path.procfs=/host/proc",
-					"--path.sysfs=/host/sys",
-				]
-				name: "node-exporter"
-				ports: [{
-					containerPort: 9100
-					hostPort:      9100
-					name:          "scrape"
-				}]
-				resources: {
-					requests: {
-						memory: "30Mi"
-						cpu:    "100m"
-					}
-					limits: {
-						memory: "50Mi"
-						cpu:    "200m"
-					}
+	spec: {
+		hostNetwork: true
+		hostPID:     true
+		containers: [{
+			image: "quay.io/prometheus/node-exporter:v0.16.0"
+			args: [
+				"--path.procfs=/host/proc",
+				"--path.sysfs=/host/sys",
+			]
+			ports: [{
+				containerPort: 9100
+				hostPort:      9100
+				name:          "scrape"
+			}]
+			resources: {
+				requests: {
+					memory: "30Mi"
+					cpu:    "100m"
 				}
-				volumeMounts: [{
-					name:      "proc"
-					readOnly:  true
-					mountPath: "/host/proc"
-				}, {
-					name:      "sys"
-					readOnly:  true
-					mountPath: "/host/sys"
-				}]
-			}]
-			volumes: [{
-				name: "proc"
-				hostPath: path: "/proc"
+				limits: {
+					memory: "50Mi"
+					cpu:    "200m"
+				}
+			}
+			volumeMounts: [{
+				name:      "proc"
+				readOnly:  true
+				mountPath: "/host/proc"
 			}, {
-				name: "sys"
-				hostPath: path: "/sys"
+				name:      "sys"
+				readOnly:  true
+				mountPath: "/host/sys"
 			}]
-		}
+		}]
+		volumes: [{
+			name: "proc"
+			hostPath: path: "/proc"
+		}, {
+			name: "sys"
+			hostPath: path: "/sys"
+		}]
 	}
 }

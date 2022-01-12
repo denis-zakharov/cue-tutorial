@@ -1,66 +1,52 @@
 package kube
 
 service: prometheus: {
-	apiVersion: "v1"
-	kind:       "Service"
 	metadata: {
 		annotations: "prometheus.io/scrape": "true"
-		labels: name: "prometheus"
-		name: "prometheus"
+		labels: name:                        "prometheus"
 	}
 	spec: {
-		selector: app: "prometheus"
 		type: "NodePort"
 		ports: [{
 			name:     "main"
-			protocol: "TCP"
-			port:     9090
 			nodePort: 30900
 		}]
 	}
 }
-deployment: prometheus: {
-	apiVersion: "apps/v1"
-	kind:       "Deployment"
-	metadata: name: "prometheus"
-	spec: {
-		replicas: 1
-		strategy: {
-			rollingUpdate: {
-				maxSurge:       0
-				maxUnavailable: 1
-			}
-			type: "RollingUpdate"
+deployment: prometheus: spec: {
+	strategy: {
+		rollingUpdate: {
+			maxSurge:       0
+			maxUnavailable: 1
 		}
-		selector: matchLabels: app: "prometheus"
-		template: {
-			metadata: {
-				name: "prometheus"
-				labels: app: "prometheus"
-				annotations: "prometheus.io.scrape": "true"
-			}
-			spec: {
-				containers: [{
-					name:  "prometheus"
-					image: "prom/prometheus:v2.4.3"
-					args: [
-						"--config.file=/etc/prometheus/prometheus.yml",
-						"--web.external-url=https://prometheus.example.com",
-					]
-					ports: [{
-						name:          "web"
-						containerPort: 9090
-					}]
-					volumeMounts: [{
-						name:      "config-volume"
-						mountPath: "/etc/prometheus"
-					}]
+		type: "RollingUpdate"
+	}
+	selector: matchLabels: app: "prometheus"
+	template: {
+		metadata: {
+			name: "prometheus"
+			annotations: "prometheus.io.scrape": "true"
+		}
+		spec: {
+			containers: [{
+				image: "prom/prometheus:v2.4.3"
+				args: [
+					"--config.file=/etc/prometheus/prometheus.yml",
+					"--web.external-url=https://prometheus.example.com",
+				]
+				ports: [{
+					name:          "web"
+					containerPort: 9090
 				}]
-				volumes: [{
-					name: "config-volume"
-					configMap: name: "prometheus"
+				volumeMounts: [{
+					name:      "config-volume"
+					mountPath: "/etc/prometheus"
 				}]
-			}
+			}]
+			volumes: [{
+				name: "config-volume"
+				configMap: name: "prometheus"
+			}]
 		}
 	}
 }
