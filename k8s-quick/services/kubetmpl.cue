@@ -67,9 +67,9 @@ _spec: {
 // for all ports defined in all containers.
 _spec: spec: template: spec: containers: [...{
 	resources: limits: {
-		cpu: *"100m" | string
+		cpu:    *"100m" | string
 		memory: *"64Mi" | string
-	},
+	}
 	ports: [...{
 		_export: *true | false // include the port in the service
 	}]

@@ -104,3 +104,10 @@ cue trim -s ./... # fold fields (simplify)
 # using commands from *_tool.cue files
 cue cmd dump ./...
 ```
+
+Extract templates from k8s api sources:
+
+```sh
+go get k8s.io/api/apps/v1
+cue get go k8s.io/api/apps/v1
+```
