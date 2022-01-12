@@ -39,3 +39,28 @@ int128    >=-170_141_183_460_469_231_731_687_303_715_884_105_728 &
               <=170_141_183_460_469_231_731_687_303_715_884_105_727
 uint128   >=0 & <=340_282_366_920_938_463_463_374_607_431_768_211_455
 ```
+
+# Kubernetes
+Initialize a cue module as a set of one or more packages (similar to go modules).
+```sh
+cue mod init
+```
+
+Initialize a Go module to fetch k8s api definitions later `k8s.io/api/apps/v1`.
+```sh
+go mod init github.com/denis-zakharov/cue-k8s-tutorial
+```
+
+Let us convert the k8s yaml files to cue files.
+```sh
+cd services/
+
+# -p cue package
+# -l cue expression for a single object (for yaml files with many objects)`
+#   We can use builtin packages under https://pkg.go.dev/cuelang.org/go/pkg, e.g.
+#   strings.ToCamel("StatefulSet") -> "statefulSet"
+#   Produce cue objects like `objKind: objName`, e.g. `statefulSet: etcd`
+# -f ovewrite files
+# -R detect structured data recursively (e.g. yaml in yaml for prometheus rules)
+cue import ./... -p kube -l 'strings.ToCamel(kind)' -l metadata.name -f -R
+```
